@@ -122,6 +122,70 @@ async def predict_endpoint(file: UploadFile = File(...)):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f'Prediction failed: {str(e)}')
+
+from fastapi.responses import StreamingResponse
+import cv2
+import numpy as np
+import io
+
+
+@app.post("/predict/visualize")
+async def predict_visualize_endpoint(file: UploadFile = File(...)):
+    '''
+    Same as /predict, but returns the image with bounding boxes
+    drawn directly on it (as PNG) instead of JSON.
+    '''
+    if "model" not in model_state:
+        raise HTTPException(status_code=503, detail="Model not loaded")
+
+    allowed_types = ["image/png", "image/jpeg", "image/jpg"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file type: {file.content_type}. Upload PNG or JPEG."
+        )
+
+    try:
+        image_bytes = await file.read()
+
+        result = predict(
+            model=model_state["model"],
+            image_input=image_bytes,
+            img_size=config["data"]["image_size"],
+            conf_threshold=config["api"]["confidence_threshold"],
+        )
+
+        # decode the original image for drawing
+        arr = np.frombuffer(image_bytes, np.uint8)
+        img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+        img = cv2.resize(img, (config["data"]["image_size"], config["data"]["image_size"]))
+
+        # draw each predicted box
+        for box in result["boxes"]:
+            x1, y1, x2, y2 = box["x1"], box["y1"], box["x2"], box["y2"]
+            conf = box["confidence"]
+
+            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
+            label = f"Pneumonia {conf:.2f}"
+            cv2.putText(
+                img, label, (x1, max(y1 - 8, 15)),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2
+            )
+
+        # encode back to PNG bytes for the response
+        success, encoded_img = cv2.imencode(".png", img)
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to encode output image")
+
+        return StreamingResponse(
+            io.BytesIO(encoded_img.tobytes()),
+            media_type="image/png"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
     
 if __name__ == '__main__':
     import uvicorn
