@@ -25,7 +25,7 @@ model_state = {}
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    local_weights_path = Path('/app/weights/best.pt')
+    local_weights_path = Path(os.environ.get('LOCAL_WEIGHTS_PATH', 'weights/best.pt'))
     local_weights_path.parent.mkdir(parents=True, exist_ok=True)
 
     bucket_name = os.environ.get('S3_BUCKET_NAME')

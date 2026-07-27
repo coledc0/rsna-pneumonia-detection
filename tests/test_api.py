@@ -41,6 +41,7 @@ def client(mock_model):
     A TestClient with the model pre-injected, bypassing the real
     lifespan startup (no S3 download, no GPU, no real weights needed).
     '''
+    os.environ['LOCAL_WEIGHTS_PATH'] = str(tmp_path / 'best.pt')
     with patch('api.main.load_model', return_value=mock_model):
         from api.main import app, model_state
         model_state['model'] = mock_model
