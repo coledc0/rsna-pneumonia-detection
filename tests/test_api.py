@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 import io
 from PIL import Image
+import os
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -36,7 +37,7 @@ def test_image_bytes():
 
 
 @pytest.fixture
-def client(mock_model):
+def client(mock_model, tmp_path):
     '''
     A TestClient with the model pre-injected, bypassing the real
     lifespan startup (no S3 download, no GPU, no real weights needed).
