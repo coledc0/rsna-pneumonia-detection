@@ -1,0 +1,39 @@
+project:
+  name: rsna-pneumonia
+  seed: 42
+
+paths:
+  data_raw: data/raw
+  data_processed: data/processed
+  weights: weights/
+  mlflow_tracking: mlflow_tracking/
+
+data:
+  image_size: 512
+  num_classes: 1  # binary: pneumonia or not
+  val_split: 0.2
+  num_workers: 4
+
+model:
+  architecture: yolov8m
+  pretrained: true
+
+training:
+  epochs: 50
+  batch_size: 32
+  learning_rate: 0.0005
+  patience: 10
+  warmup_epochs: 5
+  warmup_momentum: 0.5
+  weight_decay: 0.0001
+
+augmentation:
+  horizontal_flip: true
+  vertical_flip: false
+  rotation_limit: 15
+  brightness_contrast: true
+
+api:
+  host: 0.0.0.0
+  port: 8000
+  confidence_threshold: 0.25

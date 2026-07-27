@@ -1,0 +1,29 @@
+# data - never commit raw data
+data/
+
+# model weights - too large for git
+weights/*.pt
+weights/*.pth
+runs/
+mlruns/
+*.pt
+
+# mlflow
+mlflow_tracking/
+
+# python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.env
+
+# jupyter checkpoints
+.ipynb_checkpoints/
+
+# vs code
+.vscode/
+
+# os
+.DS_Store
+Thumbs.db
