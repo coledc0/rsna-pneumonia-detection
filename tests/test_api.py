@@ -5,7 +5,6 @@ from pathlib import Path
 import sys
 import io
 from PIL import Image
-import os
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -42,8 +41,12 @@ def client(mock_model, tmp_path):
     A TestClient with the model pre-injected, bypassing the real
     lifespan startup (no S3 download, no GPU, no real weights needed).
     '''
-    os.environ['LOCAL_WEIGHTS_PATH'] = str(tmp_path / 'best.pt')
-    with patch('api.main.load_model', return_value=mock_model):
+    fake_weights_path = tmp_path / 'best.pt'
+    fake_weights_path.touch()  # create an empty file so any existence checks pass
+
+    with patch('api.main.load_model', return_value=mock_model), \
+         patch('api.main.find_best_run', return_value=fake_weights_path):
+
         from api.main import app, model_state
         model_state['model'] = mock_model
         model_state['model_path'] = 'mocked/path/best.pt'
