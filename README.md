@@ -8,13 +8,13 @@ Built on the [RSNA Pneumonia Detection Challenge](https://www.kaggle.com/competi
 
 ## Live Demo
 
-The API is deployed on AWS ECS Fargate. Since it runs on a paid AWS service, it may be paused to manage cost — if the link below doesn't respond, it means the service is currently scaled down. Reach out and I'll spin it back up.
+The API is deployed on AWS ECS Fargate. Since it runs on a paid AWS service, it may be paused to manage cost — if the link below doesn't respond, it means the service is currently scaled down. Reach out and I'll spin it back up in under a minute.
 
 ```
 http://<current-task-ip>:8000/docs
 ```
 
-*(Note: since this deployment has no load balancer, the public IP changes each time the service restarts. Please ask for the current IP.)*
+*(Note: since this deployment has no load balancer, the public IP changes each time the service restarts. Check back here or ask for the current IP.)*
 
 ---
 
